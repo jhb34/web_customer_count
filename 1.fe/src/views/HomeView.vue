@@ -1,18 +1,31 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <button @click="getline">button</button>
+    <p>{{ lines }}</p>
   </div>
 </template>
-
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
 export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
+  components: {},
+  data() {
+    return {
+      lines: ''
+    }
+  },
+  setup() {},
+  created() {},
+  mounted() {},
+  unmounted() {},
+  methods: {
+    async getline() {
+      const r = await this.$get('/api/getlines')
+      console.log(r)
+      if (r === undefined) {
+        alert('Error at getData')
+        return
+      }
+      this.lines = r.recordset
+    }
   }
 }
 </script>
