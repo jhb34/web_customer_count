@@ -42,17 +42,17 @@ sql
   .then(console.log('mssql연결됨'))
   .catch((err) => console.log(err));
 
-app.use(
-  cors({
-    origin: 'http://172.20.2.122:8080',
-    optionsSuccessStatus: 200,
-    credentials: true,
-  })
-);
-// app.use(express.static(path.join(__dirname, 'public')));
-app.listen(3000, function () {
-  console.log('listening on 3000');
-});
+// app.use(
+//   cors({
+//     origin: 'http://localhost:8080',
+//     optionsSuccessStatus: 200,
+//     credentials: true,
+//   })
+// );
+app.use(express.static(path.join(__dirname, 'public')));
+// app.listen(3000, function () {
+//   console.log('listening on 3000');
+// });
 
 app.get('/api/get', (req, res) => {
   const r = req.session;
@@ -73,7 +73,7 @@ app.post('/api/getlist', (req, res) => {
   console.log(query);
   const request = new sql.Request();
   request.query(
-    `select top 100 * from TB_CUST_SCAN where SCAN_DATE='${date}' and CUST_CD='${customer}'`,
+    `select top 100 * from TB_CUST_SCAN where SCAN_DATE='${date}' and CUST_CD='${customer}' order by SCAN_DTTM desc`,
     (err, result) => {
       if (err) {
         console.log(err);
@@ -167,8 +167,8 @@ app.post('/api/insertdata', (req, res) => {
     }
   );
 });
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-// module.exports = app;
+module.exports = app;

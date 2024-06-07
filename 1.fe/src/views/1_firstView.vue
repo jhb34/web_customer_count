@@ -52,9 +52,6 @@
         </select>
       </div>
 
-      {{ dateValue }}
-      {{ date }}
-      {{ customer }}
       <div class="music-player visually-hidden">
         <audio ref="erroraudio" src="/error.mp3" muted></audio>
         <audio ref="sucessaudio" src="/success.mp3" muted></audio>
@@ -68,7 +65,7 @@
       <div class="input-group mt-2">
         <button
           type="button"
-          class="btn btn-primary col-3"
+          class="btn btn-danger col-3"
           style="font-size: 2vh"
           @click="getSummary"
         >
@@ -78,10 +75,18 @@
       <div
         class="mt-2"
         v-if="summary.length > 0"
-        style="height: 65vh; overflow: auto"
+        style="height: 50vh; overflow: auto"
       >
-        <table class="table table-hover">
-          <thead class="table-dark">
+        <div class="badge text-bg-primary">Stock Count</div>
+        <div
+          class="badge text-bg-light"
+          style="margin-left: 5rem; cursor: pointer"
+          @click="excelExport1"
+        >
+          Export
+        </div>
+        <table class="table table-hover" style="font-size: 1.5vh">
+          <thead class="table-primary">
             <tr style="position: sticky; top: 0">
               <th v-for="b in headers1" :key="b">{{ b.title }}</th>
             </tr>
@@ -94,7 +99,15 @@
             </tr>
           </tbody>
         </table>
-        <p>To continue scanning, please press the following button.</p>
+      </div>
+      <div v-if="summary.length > 0">
+        <div class="mt-2">
+          선택한 날짜와 고객사에 스캔기록이 있습니다.
+          <br />
+          새로 시작하려면 날짜나 고객사를 변경하고 위에 Search 버튼을 누르세요
+          <br />
+          기존 기록에 추가를 하려면 아래 Scan 버튼을 누르세요.
+        </div>
         <button @click="goToScan" class="btn btn-danger">Scan</button>
       </div>
     </div>
@@ -192,14 +205,20 @@ export default {
         }
       }
     },
-    refresh() {
-      location.reload()
-    },
     goToScan() {
       this.$router.push({
         path: '/palletscan',
         query: { date: this.date, customer: this.customer }
       })
+    },
+    refresh() {
+      location.reload()
+    },
+    excelExport1() {
+      if (this.summary === '') {
+        return alert('There is no data to Export')
+      }
+      this.$excelFromTable(this.headers1, this.summary, 'Export', {})
     }
   }
 }

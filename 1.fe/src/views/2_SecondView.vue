@@ -35,26 +35,23 @@
 
     <div class="container mt-2">
       <div class="row row-cols-auto g-3 align-items-center">
-        <div class="col-5">
+        <div class="col-6">
           <div class="input-group" @change="setDate">
-            <label class="input-group-text col-3" style="font-size: 3vh"
+            <label class="input-group-text col-4" style="font-size: 2vh"
               >Date</label
             >
             <div class="form-control">
-              <span style="font-size: 3vh"
-                >{{ date.substring(0, 4) }} / {{ date.substring(4, 6) }} /
-                {{ date.substring(6, 9) }}</span
-              >
+              <span style="font-size: 2vh">{{ date }} </span>
             </div>
           </div>
         </div>
-        <div class="col-7">
+        <div class="col-6">
           <div class="input-group" @change="setDate">
-            <label class="input-group-text col-5" style="font-size: 3vh"
+            <label class="input-group-text col-6" style="font-size: 2vh"
               >Customer</label
             >
             <div class="form-control">
-              <span style="font-size: 3vh">{{
+              <span style="font-size: 2vh">{{
                 customer === 'S1300'
                   ? 'MAL'
                   : customer === 'S1301'
@@ -99,10 +96,18 @@
       <div
         class="mt-2"
         v-if="summary.length > 0"
-        style="height: 40vh; overflow: auto"
+        style="height: 35vh; overflow: auto"
       >
-        <table class="table table-hover">
-          <thead class="table-dark">
+        <div class="badge text-bg-primary">Stock Count</div>
+        <div
+          class="badge text-bg-light"
+          style="margin-left: 5rem; cursor: pointer"
+          @click="excelExport1"
+        >
+          Export
+        </div>
+        <table class="table table-hover" style="font-size: 1.5vh">
+          <thead class="table-primary">
             <tr style="position: sticky; top: 0">
               <th v-for="b in headers1" :key="b">{{ b.title }}</th>
             </tr>
@@ -116,20 +121,31 @@
           </tbody>
         </table>
       </div>
-
-      <div class="mt-2" style="height: 40vh; overflow: auto">
-        <div>Scan List</div>
-        <table class="table table-hover">
-          <thead class="table-dark">
+      <div style="border: solid black 2px"></div>
+      <div class="mt-2" style="height: 35vh; overflow: auto">
+        <div class="badge text-bg-warning">Scan List</div>
+        <div
+          class="badge text-bg-light"
+          style="margin-left: 5rem; cursor: pointer"
+          @click="excelExport2"
+        >
+          Export
+        </div>
+        <table class="table table-hover" style="font-size: 1.5vh">
+          <thead class="table-warning">
             <tr style="position: sticky; top: 0">
-              <th v-for="b in headers2" :key="b">{{ b.title }}</th>
+              <th>Item No</th>
+              <th>Tag No</th>
+              <th>Qty</th>
+              <th>Scan Time</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="a in list" :key="a">
-              <td v-for="c in headers2" :key="c">
-                {{ a[c.key] }}
-              </td>
+              <td>{{ a.ITMNO }}</td>
+              <td>{{ a.STAG_NO }}</td>
+              <td>{{ a.TAG_QTY }}</td>
+              <td>{{ a.SCAN_DTTM }}</td>
             </tr>
           </tbody>
         </table>
@@ -239,23 +255,15 @@ export default {
     },
 
     async getSummary() {
-      if (this.date === '' || this.customer === '') {
-        this.$refs.errorbutton.click()
-        alert('Please select Date')
-      } else {
-        const r = await this.$post('/api/getsummary', {
-          params: { date: this.date, customer: this.customer }
-        })
-        console.log(r)
-        if (r === undefined) {
-          alert('Error at getData')
-          return
-        }
-        this.summary = r.data.recordset
-        if (this.summary.length === 0) {
-          this.goToScan()
-        }
+      const r = await this.$post('/api/getsummary', {
+        params: { date: this.date, customer: this.customer }
+      })
+      console.log(r)
+      if (r === undefined) {
+        alert('Error at getData')
+        return
       }
+      this.summary = r.data.recordset
     },
 
     async getList() {
@@ -335,6 +343,18 @@ export default {
         pad2(a.getSeconds())
       )
     },
+    excelExport1() {
+      if (this.summary === '') {
+        return alert('There is no data to Export')
+      }
+      this.$excelFromTable(this.headers1, this.summary, 'Export', {})
+    },
+    excelExport2() {
+      if (this.summary === '') {
+        return alert('There is no data to Export')
+      }
+      this.$excelFromTable(this.headers2, this.list, 'Export', {})
+    },
 
     async barcodeChk() {
       let LABEL_DATE = ''
@@ -411,6 +431,14 @@ export default {
           tagno: LABEL_TAGNO,
           time: today1
         })
+        this.$refs.successbutton.click()
+        setTimeout(() => {
+          location.reload()
+        }, 1200)
+      } else {
+        this.$refs.errorbutton.click()
+        alert('Label Error - please check pallet label format')
+        console.log('no', this.scanValue.slice(0, 7))
         location.reload()
       }
     }
