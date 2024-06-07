@@ -122,7 +122,11 @@
         </table>
       </div>
       <div style="border: solid black 2px"></div>
-      <div class="mt-2" style="height: 35vh; overflow: auto">
+      <div
+        class="mt-2"
+        style="height: 35vh; overflow: auto"
+        v-if="list.length > 0"
+      >
         <div class="badge text-bg-warning">Scan List</div>
         <div
           class="badge text-bg-light"
@@ -350,7 +354,7 @@ export default {
       this.$excelFromTable(this.headers1, this.summary, 'Export', {})
     },
     excelExport2() {
-      if (this.summary === '') {
+      if (this.list === '') {
         return alert('There is no data to Export')
       }
       this.$excelFromTable(this.headers2, this.list, 'Export', {})
